@@ -1,4 +1,4 @@
-### HJ Andrews data processing redux
+### HJ Andrews data processing
 
 options(digits = 10)
 
@@ -12,21 +12,21 @@ require(plot3D) # Needed for 3D PCoA plots
 # ################## #
 
 # Set directory
-setwd("~/Documents/HJ Andrews Diel Sampling/FT-ICR Analyses (NoRI - No Outlier)/")
+setwd("/path/to/ICR_data")
 
 # Standard data
-data = read.csv("HJ_Andrews - FREDA Data - NoRI - NoOutlier.csv", row.names = 1) # Load in peak counts
-mol = read.csv("HJ_Andrews - FREDA Mol - NoRI - NoOutlier.csv", row.names = 1) # Load in mol. info
-meta = read.csv("~/Documents/HJ Andrews Diel Sampling/Factor Sheets/HJ_Andrews_NoRep_Sample_Sheet.csv", row.names = 1) # Load in metadata
+data = read.csv("Processed_HJ_Andrews_cleaned_Data.csv", row.names = 1) # Load in peak counts
+mol = read.csv("Processed_HJ_Andrews_cleaned_Mol.csv", row.names = 1) # Load in mol. info
+meta = read.csv("HJ_Andrews_Metadata.csv", row.names = 1) # Load in metadata
 
 # Load in geochem.
-geo = read.csv("~/Documents/HJ Andrews Diel Sampling/Geochem/HJ_Andrews_Geochem.csv", row.names = 1)
+geo = read.csv("HJ_Andrews_Geochem.csv", row.names = 1)
 
 # Transformation profile
-trans.pro = read.csv("HJ_Andrews_NoRI_NoOut_Trans_Profiles.csv", row.names = 1) # Load in trans. profile
+trans.pro = read.csv("HJ_Andrews_Trans_Profiles.csv", row.names = 1) # Load in trans. profile
 
 # Load in tree
-tree = read.tree("HJ_Andrews_NoRI_NoOut_Weighted_All-Trans_UPGMA.tre")
+tree = read.tree("HJ_Andrews_TWCD_UPGMA.tre")
 
 
 # ###################### #
@@ -79,25 +79,6 @@ beta.thru.time = function(beta.div){
   )
   
   return(thru.time)
-}
-
-plot3D.PCA = function(pca, pca.scores){
-  axis.font = list(family = "Arial, sans-serif", size = 16, color = "black")
-  tick.font = list(family = "Arial, sans-serif", size = 12, color = "black")
-  
-  xaxis = list(title = paste0("PCA1 (", round((summary(pca)$importance[2,1]*100), 2), "%)"),
-               titlefont = axis.font, tickfont = tick.font)
-  yaxis = list(title = paste0("PCA2 (", round((summary(pca)$importance[2,2]*100), 2), "%)"),
-               titlefont = axis.font, tickfont = tick.font)
-  zaxis = list(title = paste0("PCA3 (", round((summary(pca)$importance[2,3]*100), 2), "%)"),
-               titlefont = axis.font, tickfont = tick.font)
-  legend = list(font = axis.font, x = 0, y = 0)
-  
-  plot_ly(x = pca.scores$PC1, y = pca.scores$PC2, z = pca.scores$PC3, type = "scatter3d", 
-          mode = "markers", symbol = plot.factors, color = plot.factors, symbols = c('circle', 'diamond'),
-          colors = stata_pal("s2color")(2))%>%
-    layout(scene = list(xaxis = xaxis, yaxis = yaxis, zaxis = zaxis), legend = legend)
-  
 }
 
 plot3D = function(pcoa){

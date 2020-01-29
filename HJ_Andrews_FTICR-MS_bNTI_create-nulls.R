@@ -1,12 +1,12 @@
-### 
+### Create null bNTI results
 
 # Modified from https://github.com/stegen/Stegen_etal_ISME_2013/blob/master/bNTI_Local_Machine.r; Stegen et al, 2013
 # Modified from https://github.com/stegen/Stegen_etal_ISME_2013/blob/master/Raup_Crick_Abundance.r; Stegen et al, 2013
 # RED 2018; danczak.6@osu.edu
 
-range = 1:100
-Sample_Name = "Altamaha_48Hour"
-tree_type = "Conf_Weighted"
+range = 1:999
+Sample_Name = "Sample_Name"
+tree_type = "TWCD"
 
 #-----------------#
 
@@ -17,9 +17,9 @@ library(picante)
 #### Data Loading and cleaning ####
 ###################################
 
-setwd("/Users/danc783/Null Outputs/Altamaha_48Hour/") # Working directory for FT-ICR data
-data = read.csv("~/Documents/48 Hour Meta-analysis/Individual Datasets/Altamaha River/Confident_Peaks/Processed_Altamaha_48Hour_Data_clean_noRepComp.csv", row.names = 1) # Importing the organismal data  
-tree = read.tree("~/Documents/48 Hour Meta-analysis/Individual Datasets/Altamaha River/Confident_Peaks/Altamaha_Conf_48Hour_Weighted_All-Trans_UPGMA.tre") # Importing the tree
+setwd("/path/to/ICR_data") # Working directory for FT-ICR data
+data = read.csv("*_Data.csv", row.names = 1) # Importing the organismal data  
+tree = read.tree("*_TWCD_UPGMA.tre") # Importing the tree
 
 # Creating necessary directories
 

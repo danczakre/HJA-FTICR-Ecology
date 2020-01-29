@@ -1,9 +1,9 @@
 ### Script to test individual null models
 library(reshape2); library(ggplot2); library(ggthemes)
 
-setwd("~/Documents/HJ Andrews Diel Sampling/FT-ICR Analyses (NoRI - No Outlier)/Null Models/")
-bNTI = read.csv("HJ_Andrews_NoRI_NoOut_Weighted_bNTI_999.csv", row.names = 1)
-factors = read.csv("~/Documents/HJ Andrews Diel Sampling/Factor Sheets/HJ_Andrews_NoRep_Sample_Sheet.csv", row.names = 1)
+setwd("/path/to/ICR_bNTI_results/")
+bNTI = read.csv("HJ_Andrews_TWCD_bNTI_999.csv", row.names = 1)
+factors = read.csv("HJ_Andrews_Metadata.csv", row.names = 1)
 
 ### Preprocessing and clean up
 # Dropping PP48-000012 (outlier)

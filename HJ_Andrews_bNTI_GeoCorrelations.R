@@ -7,12 +7,12 @@ library(Hmisc) # Necessary for "rcorr" function
 # ################## #
 
 # Set directory
-setwd("~/Documents/HJ Andrews Diel Sampling/FT-ICR Analyses (NoRI - No Outlier)/Null Models/")
+setwd("/path/to/ICR_bNTI_results/")
 
 # Load in bNTI and geochem
-bNTI = read.csv("HJ_Andrews_NoRI_NoOut_Weighted_bNTI_999.csv", row.names = 1)
-ext = read.csv("~/Documents/HJ Andrews Diel Sampling/Geochem/HJ_Andrews_Geochem.csv", row.names = 1)
-factors = read.csv("~/Documents/HJ Andrews Diel Sampling/Factor Sheets/HJ_Andrews_NoRep_Sample_Sheet.csv", row.names = 1)
+bNTI = read.csv("HJ_Andrews_TWCD_bNTI_999.csv", row.names = 1)
+ext = read.csv("HJ_Andrews_Geochem.csv", row.names = 1)
+factors = read.csv("HJ_Andrews_Metadata.csv", row.names = 1)
 
 # ####################### #
 #### Preliminary setup ####
