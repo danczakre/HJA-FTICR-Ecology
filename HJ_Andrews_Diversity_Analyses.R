@@ -12,7 +12,7 @@ require(plot3D) # Needed for 3D PCoA plots
 # ################## #
 
 # Set directory
-setwd("/path/to/ICR_data")
+setwd("/Users/danc783/Documents/HJ Andrews Diel Sampling/FT-ICR Analyses (NoRI - No Outlier)/")
 
 # Standard data
 data = read.csv("Processed_HJ_Andrews_cleaned_Data.csv", row.names = 1) # Load in peak counts
@@ -26,7 +26,7 @@ geo = read.csv("HJ_Andrews_Geochem.csv", row.names = 1)
 trans.pro = read.csv("HJ_Andrews_Trans_Profiles.csv", row.names = 1) # Load in trans. profile
 
 # Load in tree
-tree = read.tree("HJ_Andrews_TWCD_UPGMA.tre")
+tree = read.tree("HJ_Andrews_NoRI_NoOut_Weighted_All-Trans_UPGMA.tre")
 
 
 # ###################### #
@@ -213,6 +213,7 @@ for(i in 1:ncol(data)){
   chem.prop$Peaks[i] = length(temp$P)
 } # I'm not sure how to do this without the for-loop, but I'm simply just finding the mean for peak stats
 
+chem.melt = chem.prop
 chem.melt$Date_Time = factors$Date_Time
 chem.melt$Type = factors$Sample_Type
 
@@ -237,9 +238,22 @@ rm("chem.melt")
 chem.stats = data.frame(MWU = rep(NA, ncol(chem.prop)), p.value = NA, row.names = colnames(chem.prop))
 
 for(i in 1:ncol(chem.prop)){
-  chem.stats[i,] = c(wilcox.test(chem.prop[,i]~factors$Sample_Type)$statistic, wilcox.test(chem.prop[,i]~factors$Sample_Type)$p.value)
+  chem.stats[i,] = c(wilcox.test(chem.prop[,i]~factors$Sample_Type)$statistic, 
+                     wilcox.test(chem.prop[,i]~factors$Sample_Type)$p.value)
 }
 
+# Paired Wilcoxon stats
+chem.prop = chem.prop[-grep("12", row.names(chem.prop)),]
+chem.fact = factors[-grep("12", factors$Sample_Name),]
+
+alt.stats = data.frame(MWU = rep(NA, ncol(chem.prop)), p.value = NA, row.names = colnames(chem.prop))
+
+for(i in 1:ncol(chem.prop)){
+  alt.stats[i,] = c(wilcox.test(chem.prop[,i]~chem.fact$Sample_Type, paired = T)$statistic, 
+                    wilcox.test(chem.prop[,i]~chem.fact$Sample_Type, paired = T)$p.value)
+}
+
+rm("chem.prop", "chem.fact")
 
 # ############################### #
 #### Analyzing alpha diversity ####
@@ -273,9 +287,20 @@ rm("div.melt")
 div.stats = data.frame(MWU = rep(NA, ncol(div[,3:8])), p.value = NA, row.names = colnames(div[,3:8]))
 
 for(i in 1:(ncol(div)-2)){
-  div.stats[i,] = c(wilcox.test(div[,i+2]~factors$Sample_Type)$statistic, wilcox.test(div[,i+2]~factors$Sample_Type)$p.value)
+  div.stats[i,] = c(wilcox.test(div[,i+2]~factors$Sample_Type)$statistic, 
+                    wilcox.test(div[,i+2]~factors$Sample_Type)$p.value)
 }
 
+# Paired Wilcox tests
+div = div[-grep("12", row.names(div)),]
+div.fact = factors[-grep("12", factors$Sample_Name),]
+
+alt.div = data.frame(MWU = rep(NA, ncol(div[,3:8])), p.value = NA, row.names = colnames(div[,3:8]))
+
+for(i in 1:(ncol(div)-2)){
+  alt.div[i,] = c(wilcox.test(div[,i+2]~div.fact$Sample_Type, paired = T)$statistic, 
+                  wilcox.test(div[,i+2]~div.fact$Sample_Type, paired = T)$p.value)
+}
 
 # #################### #
 #### Beta-diversity ####

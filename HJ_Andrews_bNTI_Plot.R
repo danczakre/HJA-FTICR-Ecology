@@ -1,7 +1,7 @@
 ### Script to test individual null models
-library(reshape2); library(ggplot2); library(ggthemes)
+library(reshape2); library(ggplot2); library(ggthemes); library(ggpubr)
 
-setwd("/path/to/ICR_bNTI_results/")
+setwd("/path/to/Data Folder")
 bNTI = read.csv("HJ_Andrews_TWCD_bNTI_999.csv", row.names = 1)
 factors = read.csv("HJ_Andrews_Metadata.csv", row.names = 1)
 
@@ -35,54 +35,32 @@ vert_x_theme = theme_bw()+
 # Reflecting null matrices
 bNTI[upper.tri(bNTI)] = t(bNTI)[upper.tri(bNTI)]
 
+# Selecting within group dynamics
+avg.bNTI = bNTI
+avg.bNTI[grep("SW48", row.names(avg.bNTI)),grep("PP48", colnames(avg.bNTI))] = NA
+avg.bNTI[grep("PP48", row.names(avg.bNTI)),grep("SW48", colnames(avg.bNTI))] = NA
+
 # Plotting mean thru time
-avg.bNTI = apply(bNTI, 2, function(x) mean(x, na.rm = T))
-avg.bNTI = data.frame(Samples = names(avg.bNTI), bNTI = avg.bNTI, Date = factors$Date_Time, Type = factors$Sample)
+std.bNTI = apply(avg.bNTI, 2, function(x) sd(x, na.rm = T))
+avg.bNTI = apply(avg.bNTI, 2, function(x) mean(x, na.rm = T))
+avg.bNTI = data.frame(Samples = names(avg.bNTI), bNTI = avg.bNTI, StdDev = std.bNTI, Date = factors$Date_Time, Type = factors$Sample)
 
 ggplot(data = avg.bNTI, aes(x = as.POSIXct(Date), y = bNTI, group = Type))+
-  geom_point(aes(color = Type))+
-  geom_line(aes(color = Type))+
-  xlab(NULL)+
-  scale_color_stata()+
+  geom_point(aes(color = Type)) + geom_line(aes(color = Type))+
+  geom_errorbar(aes(color = Type, ymin = bNTI-std.bNTI, ymax = bNTI+std.bNTI), width=2500,
+                position=position_dodge(500))+
+  xlab(NULL) + scale_color_stata()+
   hori_x_theme
 
-# Melting data
-bNTI = melt(as.matrix(bNTI))
-
-# Cleaning data
-bNTI = bNTI[!is.na(bNTI$value),]
-
-# Adding Location Information
-bNTI$Type = "Pushpoint"
-bNTI$Type[grep("SW48", bNTI$Var2)] = "Surface Water"
-
-# Counting the proportion of processes
-proc = data.frame(hom.sel = NA, stoc = NA, var.sel = NA)
-proc$hom.sel = round(length(which(bNTI$value < -2))/length(bNTI$value), digits = 3)
-proc$stoc = round(length(which(abs(bNTI$value) < 2))/length(bNTI$value), digits = 3)
-proc$var.sel = round(length(which(bNTI$value > 2))/length(bNTI$value), digits = 3)
-
-### All Samples
-# Boxplots by group
-ggplot(data = bNTI, aes(x = Type, y = value))+
+# Plotting means as a boxplot
+ggplot(data = avg.bNTI, aes(x = Type, y = bNTI))+
   geom_boxplot(aes(group = Type, color = Type))+
+  geom_jitter(aes(color = Type))+
   geom_hline(yintercept = c(-2,2), color = "red", lty = 2)+
-  ggtitle("All Samples")+
-  scale_color_stata()+
-  hori_x_theme
+  stat_compare_means(method = "wilcox.test")+
+  xlab(NULL) + scale_color_stata()+
+  hori_x_theme + theme(legend.position = "none")
 
-### Within-group comparisons only
-temp = bNTI[-c(grep("SW48", bNTI$Var1), grep("SW48", bNTI$Var2)),]
-temp = rbind(temp, bNTI[intersect(grep("SW48", bNTI$Var1), grep("SW48", bNTI$Var2)),])
-
-# Boxplots by group
-ggplot(data = temp, aes(x = Type, y = value))+
-  geom_boxplot(aes(group = Type, color = Type))+
-  geom_hline(yintercept = c(-2,2), color = "red", lty = 2)+
-  ggtitle("Without Cross-comparisons")+
-  xlab(NULL)+
-  scale_color_stata()+
-  hori_x_theme
-
-# Within-group stats
-nocross.mwu = wilcox.test(temp$value~temp$Type)
+# Paired Wilcoxon test
+avg.bNTI = avg.bNTI[-grep("12", avg.bNTI$Samples),]
+stat = wilcox.test(bNTI~Type, data = avg.bNTI, paired = T)
